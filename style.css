@@ -1,4 +1,31 @@
 body {
-    background-color: rgb(32, 32, 32);
     color: white;
+    background-color: black;
+}
+
+.calculator{
+    border: 2px solid white;
+    border-radius: 8px;
+    padding: 16px;
+    width: fit-content;
+    background-color: rgb(32, 32, 32);
+}
+
+#screen {
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 5px;
+    width: fit-content;
+}
+
+input {
+    background-color: rgb(100, 100, 100);
+    color: white;
+}
+
+.buttonGroup {
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 5px;
+    width: fit-content;
 }

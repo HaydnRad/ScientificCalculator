@@ -7,7 +7,36 @@
 </head>
 <body>
     <div class="calculator">
-        <label id="output"></label>
+        <div id="screen">
+            <input id="input"></input> <br>
+            <label id="display"></label>
+        </div>
+
+        <div class="buttonGroup" id="basic">
+            <button is=calc-btn>7</button>
+            <button is=calc-btn>8</button>
+            <button is=calc-btn>9</button>
+            <button is=calc-btn onclick="backspace()"><kbd>DEL</kbd></button>
+            <button is=calc-btn onclick="clearScreen()"><kbd>AC</kbd></button>
+            <br>
+            <button is=calc-btn>4</button>
+            <button is=calc-btn>5</button>
+            <button is=calc-btn>6</button>
+            <button is=calc-btn append-value="*">×</button>
+            <button is=calc-btn append-value="/">÷</button>
+            <br>
+            <button is=calc-btn>1</button>
+            <button is=calc-btn>2</button>
+            <button is=calc-btn>3</button>
+            <button is=calc-btn>+</button>
+            <button is=calc-btn>-</button>
+            <br>
+            <button is=calc-btn>0</button>
+            <button is=calc-btn>.</button>
+            <button is=calc-btn onclick="refreshDisplay()"><kbd>Calculate</kbd></button>
+        </div>
+
+
     </div>
     <script src="main.js"></script>
 </body>
