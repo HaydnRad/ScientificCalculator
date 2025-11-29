@@ -8,7 +8,7 @@
 <body>
     <div class="calculator">
         <div id="screen">
-            <input id="input"></input> <br>
+            <input id="input" oninput="refreshDisplay()"></input> <br>
             <label id="display"></label>
         </div>
 
@@ -33,7 +33,9 @@
             <br>
             <button is=calc-btn>0</button>
             <button is=calc-btn>.</button>
-            <button is=calc-btn onclick="refreshDisplay()"><kbd>Calculate</kbd></button>
+            <button is=calc-btn>(</button>
+            <button is=calc-btn>)</button>
+            <button is=calc-btn onclick="refreshDisplay()"><kbd>=</kbd></button>
         </div>
 
 
