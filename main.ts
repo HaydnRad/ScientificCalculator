@@ -57,7 +57,6 @@ const operations : dict<Function> = {
     "+" : (x:number,y:number) => {return x+y;},
     "-" : (x:number,y:number) => {return x-y;},
     "(" : (x:number,y:number) => {if (x==null) return y; else return x*y;},
-    // ")" : (x,y) => {if (y==null) return x; else return x*y;},
 };
 
 const tokenTypes = {
@@ -88,9 +87,6 @@ class node {
     evaluate() : number {
         switch (this.token.type) {
             case tokenTypes.Numeral:
-                // let val = +this.token.lexeme;
-                // if (this.leftNode != null) val *= this.leftNode.evaluate();
-                // return val;
                 return +this.token.lexeme;
             // case tokenTypes.Lexical:
             //     return // I dont have any lexicals yet
@@ -149,8 +145,6 @@ function getPrecedence(type: number, lexeme: string) : number{
     }
 }
 
-
-
 class parser {
     expr: string;
     tokens: Array<token> = [];
@@ -202,10 +196,6 @@ class parser {
         if (curr.type == tokenTypes.Numeral) return temp;
 
         temp.rightNode = this.#buildSubTree(temp.token.precedence);
-
-        if (this.#getCurrent() != null && this.#getCurrent()!.lexeme == ")") { 
-            this.#advance();
-        }
         
         return temp;
     }
@@ -215,7 +205,10 @@ class parser {
         if (operatorToken == null) return leftNode;
         if (leftNode == null) return null;
 
-        if (operatorToken.lexeme == ")") return leftNode;
+        if (operatorToken.lexeme == ")") { 
+            this.#advance();
+            return leftNode;
+        }
 
         let retNode = new node(operatorToken);
         retNode.leftNode = leftNode;
