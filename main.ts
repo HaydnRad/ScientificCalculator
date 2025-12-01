@@ -1,9 +1,10 @@
-let input = document.getElementById("input");
-let display = document.getElementById("display");
+const input = document.getElementById("input") ! as HTMLInputElement;
+const display = document.getElementById("display") !;
+
 display.textContent = "= ";
 
 
-function append(value) {
+function append(value:string) {
     input.value += value;
     refreshDisplay();
 }
@@ -13,8 +14,8 @@ function backspace() {
 }
 function refreshDisplay() {
     try {
-        let p = new parser(input.value);
-        display.textContent = "= ".concat(p.getTree().evaluate());
+        const p = new parser(input.value);
+        display.textContent = "= ".concat(""+p.getTree()!.evaluate());
     } catch (e) {
         console.log(e);
         display.textContent = "= err";
@@ -26,6 +27,7 @@ function clearScreen() {
 }
 
 class calcBtn extends HTMLButtonElement {
+    appendValue:string;
     constructor() {
         super();
         let attr = this.attributes.getNamedItem("append-value");
@@ -44,24 +46,46 @@ class calcBtn extends HTMLButtonElement {
 }
 customElements.define("calc-btn", calcBtn, { extends: "button" });
 
+interface dict<T> {
+    [index:string]: T;
+}
 
-const operations = {
-    "**" : (x,y) => {return x**y;},
-    "*" : (x,y) => {return x*y;},
-    "/" : (x,y) => {return x/y;},
-    "+" : (x,y) => {return x+y;},
-    "-" : (x,y) => {return x-y;},
-    "(" : (x,y) => {if (x==null) return y; else return x*y;},
+const operations : dict<Function> = {
+    "**" : (x:number,y:number) => {return x**y;},
+    "*" : (x:number,y:number) => {return x*y;},
+    "/" : (x:number,y:number) => {return x/y;},
+    "+" : (x:number,y:number) => {return x+y;},
+    "-" : (x:number,y:number) => {return x-y;},
+    "(" : (x:number,y:number) => {if (x==null) return y; else return x*y;},
     // ")" : (x,y) => {if (y==null) return x; else return x*y;},
 };
 
+const tokenTypes = {
+    Numeral : 0,
+    Lexical : 1,
+    Operator : 2,
+    Grouping : 3,
+}
+
+interface token {
+    type: number,
+    lexeme: string,
+    precedence: number
+}
+
+function makeToken(type: number, lexeme: string) : token
+{
+    return {type: type, lexeme: lexeme, precedence: getPrecedence(type, lexeme)};
+}
+
 class node {
-    leftNode = null;
-    rightNode = null;
-    constructor(token){
+    leftNode : node | null = null;
+    rightNode : node | null = null;
+    token: token;
+    constructor(token: token){
         this.token = token;
     }
-    evaluate() {
+    evaluate() : number {
         switch (this.token.type) {
             case tokenTypes.Numeral:
                 // let val = +this.token.lexeme;
@@ -77,52 +101,46 @@ class node {
                 if (this.leftNode != null) left = this.leftNode.evaluate();
                 if (this.rightNode != null) right = this.rightNode.evaluate();
                 return operations[this.token.lexeme](left, right);
+            default: return 0;
         }
     }
 }
 
-const tokenTypes = {
-    Numeral : 0,
-    Lexical : 1,
-    Operator : 2,
-    Grouping : 3,
-}
-
-function getLexemeType(lexeme) {
+function getLexemeType(lexeme: string) : number {
     if (lexeme.match(/[0-9.]/)) return tokenTypes.Numeral;
     if (lexeme.match(/[\+\-\*\/]/)) return tokenTypes.Operator;
     if (lexeme.match(/[\(\)]/)) return tokenTypes.Grouping;
     if (lexeme.match(/[a-z]/i)) return tokenTypes.Lexical;
 
-    return null;
+    return -1;
 }
 
-const precCategories = {
-    min: 0,
-    addition: 1,
-    multiplication: 2,
-    exponentiation: 3,
-    max: 4,
+enum precCategories {
+    min = 0,
+    addition = 1,
+    multiplication = 2,
+    exponentiation = 3,
+    max = 4,
 }
 
-const precedences = {
-    "0": precCategories.min,
-    "a": precCategories.max,
-    "+": precCategories.addition,
-    "-": precCategories.addition,
-    "*": precCategories.multiplication,
-    "/": precCategories.multiplication,
-    "**": precCategories.exponentiation,
-    "(": precCategories.max,
-    ")": precCategories.max,
+const precedences : dict<precCategories> = {
+    "0" : precCategories.max,
+    "a" : precCategories.min,
+    "+" : precCategories.addition,
+    "-" : precCategories.addition,
+    "*" : precCategories.multiplication,
+    "/" : precCategories.multiplication,
+    "**" : precCategories.exponentiation,
+    "(" : precCategories.max,
+    ")" : precCategories.max,
 }
 
-function getPrecedence(type, lexeme) {
+function getPrecedence(type: number, lexeme: string) : number{
         switch (type) {
         case tokenTypes.Numeral:
-            return precedences["0"];
+            return precCategories.min;
         case tokenTypes.Lexical:
-            return precedences["a"];
+            return precCategories.max;
         case tokenTypes.Operator:
         case tokenTypes.Grouping:
             return precedences[lexeme];
@@ -131,14 +149,13 @@ function getPrecedence(type, lexeme) {
     }
 }
 
-function makeToken(type, lexeme) {
-    return {type: type, lexeme: lexeme, precedence: getPrecedence(type, lexeme)};
-}
+
 
 class parser {
-    tokens = [];
+    expr: string;
+    tokens: Array<token> = [];
     #currIndex = 0;
-    constructor(expression){
+    constructor(expression: string){
         this.expr = expression.replace(/\s/g, "");
         this.#tokenize();
     }
@@ -163,21 +180,22 @@ class parser {
         }
     }
 
-    #getCurrent() {
+    #getCurrent(): token | null {
         if (this.#currIndex < this.tokens.length) {
             return this.tokens[this.#currIndex];
         }
         return null;
     }
 
-    #advance() {
+    #advance(): token | null {
         this.#currIndex++;
         return this.#getCurrent();
     }
 
     // returns the top node for the current terminal token and advances to the next token
-    #parsePrefix() {
+    #parsePrefix() : node | null {
         let curr = this.#getCurrent();
+        if (curr == null) return null;
         let temp = new node(curr);
         this.#advance();
 
@@ -185,7 +203,7 @@ class parser {
 
         temp.rightNode = this.#buildSubTree(temp.token.precedence);
 
-        if (this.#getCurrent() != null && this.#getCurrent().lexeme == ")") { 
+        if (this.#getCurrent() != null && this.#getCurrent()!.lexeme == ")") { 
             this.#advance();
         }
         
@@ -193,8 +211,9 @@ class parser {
     }
 
     // returns the top node for the current operator, which should have a higher precedence when called in #buildSubTree
-    #parseInfix(operatorToken, leftNode) {
-        if (operatorToken == null) return null;
+    #parseInfix(operatorToken : token, leftNode : node | null) : node | null {
+        if (operatorToken == null) return leftNode;
+        if (leftNode == null) return null;
 
         if (operatorToken.lexeme == ")") return leftNode;
 
@@ -204,7 +223,7 @@ class parser {
         return retNode;
     }
 
-    #buildSubTree(precedenceLevel) {
+    #buildSubTree(precedenceLevel : number) : node | null {
         if (this.#getCurrent() == null) return null;
         let leftNode = this.#parsePrefix();
         let nextOperatorToken = this.#getCurrent();
