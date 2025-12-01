@@ -37,14 +37,19 @@ display.textContent = "= ";
 
 function append(value:string) {
     input.value += value;
-    refreshDisplay();
 }
+
 function backspace() {
     input.value = input.value.substring(0, input.value.length-1);
-    refreshDisplay();
 }
+
 function refreshDisplay() {
     try {
+        if (input.value == null) 
+        {
+            display.textContent = "= "; 
+            return;
+        }
         const p = new parser(input.value);
         display.textContent = "= ".concat(""+p.getTree()!.evaluate());
     } catch (e) {
