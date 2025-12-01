@@ -1,8 +1,6 @@
 const input = document.getElementById("input") ! as HTMLInputElement;
 const display = document.getElementById("display") !;
 
-
-
 const operations : dict<Function> = {
     "**" : (x:number,y:number) => {return x**y;},
     "*" : (x:number,y:number) => {return x*y;},
@@ -14,6 +12,7 @@ const operations : dict<Function> = {
     "mod" : (x:number,y:number) => {return x%y;},
     "ln" : (x:number,y:number) => {if (x==null) x=1; return x*Math.log(y);},
     "exp" : (x:number,y:number) => {if (x==null) x=1; return x*Math.exp(y);},
+    "abs" : (x:number,y:number) => {if (x==null) x=1; return x*Math.abs(y);},
 
     "sin" : (x:number,y:number) => {if (x==null) x=1; return x*Math.sin(y);},
     "cos" : (x:number,y:number) => {if (x==null) x=1; return x*Math.cos(y);},
@@ -23,7 +22,10 @@ const operations : dict<Function> = {
     "atan" : (x:number,y:number) => {if (x==null) x=1; return x*Math.atan(y);},
 };
 
-
+const constants : dict<number> = {
+    "PI" : Math.PI,
+    "E" : Math.E,
+}
 
 function append(value:string) {
     input.value += value;
@@ -82,9 +84,10 @@ interface dict<T> {
 
 const tokenTypes = {
     Numeral : 0,
-    Lexical : 1,
-    Operator : 2,
-    Grouping : 3,
+    Constant : 1,
+    Function : 2,
+    Operator : 3,
+    Grouping : 4,
 }
 
 interface token {
@@ -109,7 +112,13 @@ class node {
         switch (this.token.type) {
             case tokenTypes.Numeral:
                 return +this.token.lexeme;
-            case tokenTypes.Lexical:
+            case tokenTypes.Constant:
+                let ul = 1;
+                let ur = 1;
+                if (this.leftNode != null) ul = this.leftNode.evaluate();
+                if (this.rightNode != null) ur = this.rightNode.evaluate();
+                return ul * constants[this.token.lexeme] * ur;
+            case tokenTypes.Function:
             case tokenTypes.Grouping:
             case tokenTypes.Operator:
                 let left = null;
@@ -126,7 +135,8 @@ function getLexemeType(lexeme: string) : number {
     if (lexeme.match(/[0-9.]/)) return tokenTypes.Numeral;
     if (lexeme.match(/[\+\-\*\^\/]/)) return tokenTypes.Operator;
     if (lexeme.match(/[\(\)]/)) return tokenTypes.Grouping;
-    if (lexeme.match(/[a-z]/i)) return tokenTypes.Lexical;
+    if (lexeme.match(/[a-z]/)) return tokenTypes.Function;
+    if (lexeme.match(/[A-Z]/)) return tokenTypes.Constant;
 
     return -1;
 }
@@ -134,15 +144,17 @@ function getLexemeType(lexeme: string) : number {
 enum precCategories {
     stop = -1,
     min = 0,
-    addition = 1,
-    multiplication = 2,
-    exponentiation = 3,
-    max = 4,
+    low = 1,
+    addition = 2,
+    multiplication = 3,
+    exponentiation = 4,
+    max = 5,
 }
 
 const precedences : dict<precCategories> = {
     "0" : precCategories.min,
     "a" : precCategories.max,
+    "A" : precCategories.low,
     "+" : precCategories.addition,
     "-" : precCategories.addition,
     "*" : precCategories.multiplication,
@@ -156,7 +168,9 @@ function getPrecedence(type: number, lexeme: string) : number{
         switch (type) {
         case tokenTypes.Numeral:
             return precCategories.min;
-        case tokenTypes.Lexical:
+        case tokenTypes.Constant:
+            return precCategories.low;
+        case tokenTypes.Function:
             return precCategories.max;
         case tokenTypes.Operator:
         case tokenTypes.Grouping:
@@ -223,7 +237,7 @@ class parser {
         
         let ret = new node(curr);
 
-        if (curr.type != tokenTypes.Numeral) {
+        if (curr.type != tokenTypes.Numeral && curr.type != tokenTypes.Constant) {
             ret.rightNode = this.parsePrefix();
         }
 

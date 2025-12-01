@@ -15,6 +15,8 @@ var operations = {
         x = 1; return x * Math.log(y); },
     "exp": function (x, y) { if (x == null)
         x = 1; return x * Math.exp(y); },
+    "abs": function (x, y) { if (x == null)
+        x = 1; return x * Math.abs(y); },
     "sin": function (x, y) { if (x == null)
         x = 1; return x * Math.sin(y); },
     "cos": function (x, y) { if (x == null)
@@ -27,6 +29,10 @@ var operations = {
         x = 1; return x * Math.acos(y); },
     "atan": function (x, y) { if (x == null)
         x = 1; return x * Math.atan(y); }
+};
+var constants = {
+    "PI": Math.PI,
+    "E": Math.E
 };
 function append(value) {
     input.value += value;
@@ -55,9 +61,10 @@ function clearScreen() {
 }
 var tokenTypes = {
     Numeral: 0,
-    Lexical: 1,
-    Operator: 2,
-    Grouping: 3
+    Constant: 1,
+    Function: 2,
+    Operator: 3,
+    Grouping: 4
 };
 function makeToken(type, lexeme) {
     return { type: type, lexeme: lexeme, precedence: getPrecedence(type, lexeme) };
@@ -69,10 +76,23 @@ var node = /** @class */ (function () {
         this.token = token;
     }
     node.prototype.evaluate = function () {
+        var ul = 1;
+        var ur = 1;
         switch (this.token.type) {
             case tokenTypes.Numeral:
+                if (this.leftNode != null)
+                    ul = this.leftNode.evaluate();
+                if (this.rightNode != null)
+                    ur = this.rightNode.evaluate();
+                // return ul * (+this.token.lexeme) * ur;
                 return +this.token.lexeme;
-            case tokenTypes.Lexical:
+            case tokenTypes.Constant:
+                if (this.leftNode != null)
+                    ul = this.leftNode.evaluate();
+                if (this.rightNode != null)
+                    ur = this.rightNode.evaluate();
+                return ul * constants[this.token.lexeme] * ur;
+            case tokenTypes.Function:
             case tokenTypes.Grouping:
             case tokenTypes.Operator:
                 var left = null;
@@ -94,22 +114,26 @@ function getLexemeType(lexeme) {
         return tokenTypes.Operator;
     if (lexeme.match(/[\(\)]/))
         return tokenTypes.Grouping;
-    if (lexeme.match(/[a-z]/i))
-        return tokenTypes.Lexical;
+    if (lexeme.match(/[a-z]/))
+        return tokenTypes.Function;
+    if (lexeme.match(/[A-Z]/))
+        return tokenTypes.Constant;
     return -1;
 }
 var precCategories;
 (function (precCategories) {
     precCategories[precCategories["stop"] = -1] = "stop";
     precCategories[precCategories["min"] = 0] = "min";
-    precCategories[precCategories["addition"] = 1] = "addition";
-    precCategories[precCategories["multiplication"] = 2] = "multiplication";
-    precCategories[precCategories["exponentiation"] = 3] = "exponentiation";
-    precCategories[precCategories["max"] = 4] = "max";
+    precCategories[precCategories["low"] = 1] = "low";
+    precCategories[precCategories["addition"] = 2] = "addition";
+    precCategories[precCategories["multiplication"] = 3] = "multiplication";
+    precCategories[precCategories["exponentiation"] = 4] = "exponentiation";
+    precCategories[precCategories["max"] = 5] = "max";
 })(precCategories || (precCategories = {}));
 var precedences = {
     "0": precCategories.min,
     "a": precCategories.max,
+    "A": precCategories.low,
     "+": precCategories.addition,
     "-": precCategories.addition,
     "*": precCategories.multiplication,
@@ -122,7 +146,9 @@ function getPrecedence(type, lexeme) {
     switch (type) {
         case tokenTypes.Numeral:
             return precCategories.min;
-        case tokenTypes.Lexical:
+        case tokenTypes.Constant:
+            return precCategories.low;
+        case tokenTypes.Function:
             return precCategories.max;
         case tokenTypes.Operator:
         case tokenTypes.Grouping:
@@ -179,7 +205,7 @@ var parser = /** @class */ (function () {
             return temp;
         }
         var ret = new node(curr);
-        if (curr.type != tokenTypes.Numeral) {
+        if (curr.type != tokenTypes.Numeral && curr.type != tokenTypes.Constant) {
             ret.rightNode = this.parsePrefix();
         }
         return ret;
