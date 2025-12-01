@@ -1,26 +1,7 @@
-const calculator = document.getElementById("calculator");
 const input = document.getElementById("input") ! as HTMLInputElement;
 const display = document.getElementById("display") !;
 
-class calcBtn extends HTMLButtonElement {
-    appendValue:string;
-    constructor() {
-        super();
-        let attr = this.attributes.getNamedItem("append-value");
-        if (attr == null)
-            this.appendValue = this.textContent;
-        else 
-            this.appendValue = attr.textContent;
 
-        if (this.id == "")
-            this.id = "btn_" + this.appendValue;
-
-        if (this.onclick == null)
-            this.onclick = () => { append(this.appendValue) };
-    }
-    
-}
-customElements.define("calc-btn", calcBtn);
 
 const operations : dict<Function> = {
     "**" : (x:number,y:number) => {return x**y;},
@@ -29,11 +10,20 @@ const operations : dict<Function> = {
     "+" : (x:number,y:number) => {return x+y;},
     "-" : (x:number,y:number) => {return x-y;},
     "(" : (x:number,y:number) => {if (x==null) return y; else return x*y;}, // )
+
     "mod" : (x:number,y:number) => {return x%y;},
+    "ln" : (x:number,y:number) => {if (x==null) x=1; return x*Math.log(y);},
+    "exp" : (x:number,y:number) => {if (x==null) x=1; return x*Math.exp(y);},
+
+    "sin" : (x:number,y:number) => {if (x==null) x=1; return x*Math.sin(y);},
+    "cos" : (x:number,y:number) => {if (x==null) x=1; return x*Math.cos(y);},
+    "tan" : (x:number,y:number) => {if (x==null) x=1; return x*Math.tan(y);},
+    "asin" : (x:number,y:number) => {if (x==null) x=1; return x*Math.asin(y);},
+    "acos" : (x:number,y:number) => {if (x==null) x=1; return x*Math.acos(y);},
+    "atan" : (x:number,y:number) => {if (x==null) x=1; return x*Math.atan(y);},
 };
 
 
-display.textContent = "= ";
 
 function append(value:string) {
     input.value += value;
@@ -43,26 +33,49 @@ function backspace() {
     input.value = input.value.substring(0, input.value.length-1);
 }
 
+display.textContent = "= ";
 function refreshDisplay() {
     try {
         if (input.value == null) 
-        {
-            display.textContent = "= "; 
-            return;
+            {
+                display.textContent = "= "; 
+                return;
+            }
+            const p = new parser(input.value);
+            display.textContent = "= ".concat(""+p.getTree()!.evaluate());
+        } catch (e) {
+            console.log(e);
+            display.textContent = "= err";
         }
-        const p = new parser(input.value);
-        display.textContent = "= ".concat(""+p.getTree()!.evaluate());
-    } catch (e) {
-        console.log(e);
-        display.textContent = "= err";
     }
-}
 function clearScreen() {
     input.value = "";
     display.textContent = "= ";
 }
 
+// The custom button element broke for no reason 30 minutes before this had to be done and I have no idea why help AAAAAAAAAAAAAA
 
+// class calcBtn extends HTMLButtonElement {
+//     appendValue:string;
+//     constructor() {
+//         super();
+//         let attr = this.attributes.getNamedItem("append-value");
+//         if (attr == null)
+//             this.appendValue = this.textContent;
+//         else 
+//             this.appendValue = attr.textContent;
+
+//         if (this.id == "")
+//             this.id = "btn_" + this.appendValue;
+
+//         if (this.onclick == null)
+//             this.onclick = () => { append(this.appendValue); };
+//     }
+    
+// }
+// customElements.define("calc-btn", calcBtn);
+    
+    
 interface dict<T> {
     [index:string]: T;
 }
@@ -97,7 +110,6 @@ class node {
             case tokenTypes.Numeral:
                 return +this.token.lexeme;
             case tokenTypes.Lexical:
-                console.log(this.token.lexeme);
             case tokenTypes.Grouping:
             case tokenTypes.Operator:
                 let left = null;
@@ -112,7 +124,7 @@ class node {
 
 function getLexemeType(lexeme: string) : number {
     if (lexeme.match(/[0-9.]/)) return tokenTypes.Numeral;
-    if (lexeme.match(/[\+\-\*\/]/)) return tokenTypes.Operator;
+    if (lexeme.match(/[\+\-\*\^\/]/)) return tokenTypes.Operator;
     if (lexeme.match(/[\(\)]/)) return tokenTypes.Grouping;
     if (lexeme.match(/[a-z]/i)) return tokenTypes.Lexical;
 

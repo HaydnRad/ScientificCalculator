@@ -1,39 +1,5 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var calculator = document.getElementById("calculator");
 var input = document.getElementById("input");
 var display = document.getElementById("display");
-var calcBtn = /** @class */ (function (_super) {
-    __extends(calcBtn, _super);
-    function calcBtn() {
-        var _this = _super.call(this) || this;
-        var attr = _this.attributes.getNamedItem("append-value");
-        if (attr == null)
-            _this.appendValue = _this.textContent;
-        else
-            _this.appendValue = attr.textContent;
-        if (_this.id == "")
-            _this.id = "btn_" + _this.appendValue;
-        if (_this.onclick == null)
-            _this.onclick = function () { append(_this.appendValue); };
-        return _this;
-    }
-    return calcBtn;
-}(HTMLButtonElement));
-customElements.define("calc-btn", calcBtn);
 var operations = {
     "**": function (x, y) { return Math.pow(x, y); },
     "*": function (x, y) { return x * y; },
@@ -44,15 +10,31 @@ var operations = {
         return y;
     else
         return x * y; },
-    "mod": function (x, y) { return x % y; }
+    "mod": function (x, y) { return x % y; },
+    "ln": function (x, y) { if (x == null)
+        x = 1; return x * Math.log(y); },
+    "exp": function (x, y) { if (x == null)
+        x = 1; return x * Math.exp(y); },
+    "sin": function (x, y) { if (x == null)
+        x = 1; return x * Math.sin(y); },
+    "cos": function (x, y) { if (x == null)
+        x = 1; return x * Math.cos(y); },
+    "tan": function (x, y) { if (x == null)
+        x = 1; return x * Math.tan(y); },
+    "asin": function (x, y) { if (x == null)
+        x = 1; return x * Math.asin(y); },
+    "acos": function (x, y) { if (x == null)
+        x = 1; return x * Math.acos(y); },
+    "atan": function (x, y) { if (x == null)
+        x = 1; return x * Math.atan(y); }
 };
-display.textContent = "= ";
 function append(value) {
     input.value += value;
 }
 function backspace() {
     input.value = input.value.substring(0, input.value.length - 1);
 }
+display.textContent = "= ";
 function refreshDisplay() {
     try {
         if (input.value == null) {
@@ -91,7 +73,6 @@ var node = /** @class */ (function () {
             case tokenTypes.Numeral:
                 return +this.token.lexeme;
             case tokenTypes.Lexical:
-                console.log(this.token.lexeme);
             case tokenTypes.Grouping:
             case tokenTypes.Operator:
                 var left = null;
@@ -109,7 +90,7 @@ var node = /** @class */ (function () {
 function getLexemeType(lexeme) {
     if (lexeme.match(/[0-9.]/))
         return tokenTypes.Numeral;
-    if (lexeme.match(/[\+\-\*\/]/))
+    if (lexeme.match(/[\+\-\*\^\/]/))
         return tokenTypes.Operator;
     if (lexeme.match(/[\(\)]/))
         return tokenTypes.Grouping;
