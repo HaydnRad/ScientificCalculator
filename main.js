@@ -55,8 +55,10 @@ function backspace() {
 }
 function refreshDisplay() {
     try {
-        if (input.value == null)
+        if (input.value == null) {
             display.textContent = "= ";
+            return;
+        }
         var p = new parser(input.value);
         display.textContent = "= ".concat("" + p.getTree().evaluate());
     }
