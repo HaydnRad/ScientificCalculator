@@ -57,25 +57,25 @@ function clearScreen() {
 
 // The custom button element broke for no reason 30 minutes before this had to be done and I have no idea why help AAAAAAAAAAAAAA
 
-// class calcBtn extends HTMLButtonElement {
-//     appendValue:string;
-//     constructor() {
-//         super();
-//         let attr = this.attributes.getNamedItem("append-value");
-//         if (attr == null)
-//             this.appendValue = this.textContent;
-//         else 
-//             this.appendValue = attr.textContent;
+class calcBtn extends HTMLButtonElement {
+    appendValue:string;
+    constructor() {
+        super();
+        let attr = this.attributes.getNamedItem("append-value");
+        if (attr == null)
+            this.appendValue = this.textContent;
+        else 
+            this.appendValue = attr.textContent;
 
-//         if (this.id == "")
-//             this.id = "btn_" + this.appendValue;
+        if (this.id == "")
+            this.id = "btn_" + this.appendValue;
 
-//         if (this.onclick == null)
-//             this.onclick = () => { append(this.appendValue); };
-//     }
+        if (this.onclick == null)
+            this.onclick = () => { append(this.appendValue); };
+    }
     
-// }
-// customElements.define("calc-btn", calcBtn);
+}
+customElements.define("calc-btn", calcBtn);
     
     
 interface dict<T> {
