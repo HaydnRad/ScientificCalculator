@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Scientific Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="calculator">
+        <div id="screen">
+            <input id="input"></input> <br>
+            <label id="display"></label>
+        </div>
+        
+        <div class="buttonGroup" id="basic">
+            <button onclick="append('7')">7</button>
+            <button onclick="append('8')">8</button>
+            <button onclick="append('9')">9</button>
+            <button onclick="backspace()"><kbd>DEL</kbd></button>
+            <button onclick="clearScreen()"><kbd>AC</kbd></button>
+            <br>
+            <button onclick="append('4')">4</button>
+            <button onclick="append('5')">5</button>
+            <button onclick="append('6')">6</button>
+            <button onclick="append('*')">×</button>
+            <button onclick="append('/')">÷</button>
+            <button onclick="append('**')">^</button>
+            <br>
+            <button onclick="append('1')">1</button>
+            <button onclick="append('2')">2</button>
+            <button onclick="append('3')">3</button>
+            <button onclick="append('+')">+</button>
+            <button onclick="append('-')">-</button>
+            <br>
+            <button onclick="append('0')">0</button>
+            <button onclick="append('.')">.</button>
+            <button onclick="append('(')">(</button>
+            <button onclick="append(')')">)</button>
+            <button onclick="refreshDisplay()"><kbd>=</kbd></button>
+        </div>
+        
+        <div class="buttonGroup" id="advanced">
+            <button onclick="append('mod(')">mod</button>
+            <button onclick="append('ln(')">ln</button>
+            <button onclick="append('exp(')">exp</button>            
+        </div>
+        
+        <div class="buttonGroup" id="trig">
+            <button onclick="append('sin(')">sin</button>
+            <button onclick="append('cos(')">cos</button>
+            <button onclick="append('tan(')">tan</button>
+            <br>
+            <button onclick="append('asin(')">asin</button>
+            <button onclick="append('acos(')">acos</button>
+            <button onclick="append('atan(')">atan</button>
+        </div>
+
+        <script src="../dist/index.js"></script>
+
+    </div>
+</body>
+</html>
