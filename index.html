@@ -6,57 +6,61 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="calculator">
-        <div id="screen">
+    <section class="calculator">
+        <section id="screen">
             <input id="input"></input> <br>
             <label id="display"></label>
-        </div>
+        </section>
         
-        <div class="buttonGroup" id="basic">
-            <button onclick="append('7')">7</button>
-            <button onclick="append('8')">8</button>
-            <button onclick="append('9')">9</button>
+        <section id="buttons">
+            
+        </section>
+
+        <section class="buttonGroup" id="basic">
+            <button is=calc-btn>7</button>
+            <button is=calc-btn>8</button>
+            <button is=calc-btn>9</button>
             <button onclick="backspace()"><kbd>DEL</kbd></button>
             <button onclick="clearScreen()"><kbd>AC</kbd></button>
             <br>
-            <button onclick="append('4')">4</button>
-            <button onclick="append('5')">5</button>
-            <button onclick="append('6')">6</button>
-            <button onclick="append('*')">×</button>
-            <button onclick="append('/')">÷</button>
-            <button onclick="append('**')">^</button>
+            <button is=calc-btn>4</button>
+            <button is=calc-btn>5</button>
+            <button is=calc-btn>6</button>
+            <button is=calc-btn>×</button>
+            <button is=calc-btn>÷</button>
+            <button is=calc-btn>^</button>
             <br>
-            <button onclick="append('1')">1</button>
-            <button onclick="append('2')">2</button>
-            <button onclick="append('3')">3</button>
-            <button onclick="append('+')">+</button>
-            <button onclick="append('-')">-</button>
+            <button is=calc-btn>1</button>
+            <button is=calc-btn>2</button>
+            <button is=calc-btn>3</button>
+            <button is=calc-btn>+</button>
+            <button is=calc-btn>-</button>
             <br>
-            <button onclick="append('0')">0</button>
-            <button onclick="append('.')">.</button>
-            <button onclick="append('(')">(</button>
-            <button onclick="append(')')">)</button>
+            <button is=calc-btn>0</button>
+            <button is=calc-btn>.</button>
+            <button is=calc-btn>(</button>
+            <button is=calc-btn>)</button>
             <button onclick="refreshDisplay()"><kbd>=</kbd></button>
-        </div>
+        </section>
         
-        <div class="buttonGroup" id="advanced">
-            <button onclick="append('mod(')">mod</button>
-            <button onclick="append('ln(')">ln</button>
-            <button onclick="append('exp(')">exp</button>            
-        </div>
+        <section class="buttonGroup" id="advanced">
+            <button is=calc-btn append-text="mod(">mod</button>
+            <button is=calc-btn append-text="ln(">ln</button>
+            <button is=calc-btn append-text="exp(">exp</button>            
+        </section>
         
-        <div class="buttonGroup" id="trig">
-            <button onclick="append('sin(')">sin</button>
-            <button onclick="append('cos(')">cos</button>
-            <button onclick="append('tan(')">tan</button>
+        <section class="buttonGroup" id="trig">
+            <button is=calc-btn append-text="sin(">sin</button>
+            <button is=calc-btn append-text="cos(">cos</button>
+            <button is=calc-btn append-text="tan(">tan</button>
             <br>
-            <button onclick="append('asin(')">asin</button>
-            <button onclick="append('acos(')">acos</button>
-            <button onclick="append('atan(')">atan</button>
-        </div>
+            <button is=calc-btn append-text="asin(">asin</button>
+            <button is=calc-btn append-text="acos(">acos</button>
+            <button is=calc-btn append-text="atan(">atan</button>
+        </section>
 
         <script src="./dist/index.js"></script>
 
-    </div>
+    </section>
 </body>
 </html>

@@ -1,55 +1,55 @@
-const input = document.getElementById("input") ! as HTMLInputElement;
-const display = document.getElementById("display") !;
+const pad = document.getElementById("buttons");
+const input = document.getElementById("input")! as HTMLInputElement;
+const display = document.getElementById("display")!;
 
-const operations : dict<Function> = {
-    "**" : (x:number,y:number) => {return x**y;},
-    "*" : (x:number,y:number) => {return x*y;},
-    "/" : (x:number,y:number) => {return x/y;},
-    "+" : (x:number,y:number) => {return x+y;},
-    "-" : (x:number,y:number) => {return x-y;},
-    "(" : (x:number,y:number) => {if (x==null) return y; else return x*y;}, // )
+const operations: dict<Function> = {
+    "**": (x: number, y: number) => { return x ** y; },
+    "*": (x: number, y: number) => { return x * y; },
+    "/": (x: number, y: number) => { return x / y; },
+    "+": (x: number, y: number) => { return x + y; },
+    "-": (x: number, y: number) => { return x - y; },
+    "(": (x: number, y: number) => { if (x == null) return y; else return x * y; }, // )
 
-    "mod" : (x:number,y:number) => {return x%y;},
-    "ln" : (x:number,y:number) => {if (x==null) x=1; return x*Math.log(y);},
-    "exp" : (x:number,y:number) => {if (x==null) x=1; return x*Math.exp(y);},
-    "abs" : (x:number,y:number) => {if (x==null) x=1; return x*Math.abs(y);},
+    "mod": (x: number, y: number) => { return x % y; },
+    "ln": (x: number, y: number) => { if (x == null) x = 1; return x * Math.log(y); },
+    "exp": (x: number, y: number) => { if (x == null) x = 1; return x * Math.exp(y); },
+    "abs": (x: number, y: number) => { if (x == null) x = 1; return x * Math.abs(y); },
 
-    "sin" : (x:number,y:number) => {if (x==null) x=1; return x*Math.sin(y);},
-    "cos" : (x:number,y:number) => {if (x==null) x=1; return x*Math.cos(y);},
-    "tan" : (x:number,y:number) => {if (x==null) x=1; return x*Math.tan(y);},
-    "asin" : (x:number,y:number) => {if (x==null) x=1; return x*Math.asin(y);},
-    "acos" : (x:number,y:number) => {if (x==null) x=1; return x*Math.acos(y);},
-    "atan" : (x:number,y:number) => {if (x==null) x=1; return x*Math.atan(y);},
+    "sin": (x: number, y: number) => { if (x == null) x = 1; return x * Math.sin(y); },
+    "cos": (x: number, y: number) => { if (x == null) x = 1; return x * Math.cos(y); },
+    "tan": (x: number, y: number) => { if (x == null) x = 1; return x * Math.tan(y); },
+    "asin": (x: number, y: number) => { if (x == null) x = 1; return x * Math.asin(y); },
+    "acos": (x: number, y: number) => { if (x == null) x = 1; return x * Math.acos(y); },
+    "atan": (x: number, y: number) => { if (x == null) x = 1; return x * Math.atan(y); },
 };
 
-const constants : dict<number> = {
-    "PI" : Math.PI,
-    "E" : Math.E,
+const constants: dict<number> = {
+    "PI": Math.PI,
+    "E": Math.E,
 }
 
-function append(value:string) {
+function append(value: string) {
     input.value += value;
 }
 
 function backspace() {
-    input.value = input.value.substring(0, input.value.length-1);
+    input.value = input.value.substring(0, input.value.length - 1);
 }
 
 display.textContent = "= ";
 function refreshDisplay() {
     try {
-        if (input.value == null) 
-            {
-                display.textContent = "= "; 
-                return;
-            }
-            const p = new parser(input.value);
-            display.textContent = "= ".concat(""+p.getTree()!.evaluate());
-        } catch (e) {
-            console.log(e);
-            display.textContent = "= err";
+        if (input.value == null) {
+            display.textContent = "= ";
+            return;
         }
+        const p = new parser(input.value);
+        display.textContent = "= ".concat("" + p.getTree()!.evaluate());
+    } catch (e) {
+        console.log(e);
+        display.textContent = "= err";
     }
+}
 function clearScreen() {
     input.value = "";
     display.textContent = "= ";
@@ -57,14 +57,45 @@ function clearScreen() {
 
 // The custom button element broke for no reason 30 minutes before this had to be done and I have no idea why help AAAAAAAAAAAAAA
 
+type ButtonBrains = {
+    text: string,
+    lexeme?: string,
+    buttonFunction?: Function,
+}
+
+class ButtonGroup {
+    buttons: Array<ButtonBrains> = [];
+    id = "";
+    constructor(buttons: Array<ButtonBrains>, id: string) {
+        this.buttons = buttons;
+        this.id = id;
+    }
+
+    createButton(btnInfo: ButtonBrains) {
+        let btn = document.createElement("button");
+        btn.id = "btn_" + btnInfo.text;
+    }
+
+    placeAllButtons() {
+        const group = document.createElement("section");
+        group.id = this.id;
+        for (let i = 0; i < this.buttons.length; i++) {
+            
+        }
+        
+        pad?.appendChild(group);
+    }
+}
+
+
 class calcBtn extends HTMLButtonElement {
-    appendValue:string;
+    appendValue: string;
     constructor() {
         super();
         let attr = this.attributes.getNamedItem("append-value");
         if (attr == null)
             this.appendValue = this.textContent;
-        else 
+        else
             this.appendValue = attr.textContent;
 
         if (this.id == "")
@@ -73,21 +104,21 @@ class calcBtn extends HTMLButtonElement {
         if (this.onclick == null)
             this.onclick = () => { append(this.appendValue); };
     }
-    
+
 }
 customElements.define("calc-btn", calcBtn);
-    
-    
+
+
 interface dict<T> {
-    [index:string]: T;
+    [index: string]: T;
 }
 
 const tokenTypes = {
-    Numeral : 0,
-    Constant : 1,
-    Function : 2,
-    Operator : 3,
-    Grouping : 4,
+    Numeral: 0,
+    Constant: 1,
+    Function: 2,
+    Operator: 3,
+    Grouping: 4,
 }
 
 interface token {
@@ -96,19 +127,18 @@ interface token {
     precedence: number
 }
 
-function makeToken(type: number, lexeme: string) : token
-{
-    return {type: type, lexeme: lexeme, precedence: getPrecedence(type, lexeme)};
+function makeToken(type: number, lexeme: string): token {
+    return { type: type, lexeme: lexeme, precedence: getPrecedence(type, lexeme) };
 }
 
 class node {
-    leftNode : node | null = null;
-    rightNode : node | null = null;
+    leftNode: node | null = null;
+    rightNode: node | null = null;
     token: token;
-    constructor(token: token){
+    constructor(token: token) {
         this.token = token;
     }
-    evaluate() : number {
+    evaluate(): number {
         switch (this.token.type) {
             case tokenTypes.Numeral:
                 return +this.token.lexeme;
@@ -131,7 +161,7 @@ class node {
     }
 }
 
-function getLexemeType(lexeme: string) : number {
+function getLexemeType(lexeme: string): number {
     if (lexeme.match(/[0-9.]/)) return tokenTypes.Numeral;
     if (lexeme.match(/[\+\-\*\^\/]/)) return tokenTypes.Operator;
     if (lexeme.match(/[\(\)]/)) return tokenTypes.Grouping;
@@ -151,21 +181,21 @@ enum precCategories {
     max = 5,
 }
 
-const precedences : dict<precCategories> = {
-    "0" : precCategories.min,
-    "a" : precCategories.max,
-    "A" : precCategories.low,
-    "+" : precCategories.addition,
-    "-" : precCategories.addition,
-    "*" : precCategories.multiplication,
-    "/" : precCategories.multiplication,
-    "**" : precCategories.exponentiation,
-    "(" : precCategories.max,
-    ")" : precCategories.stop,
+const precedences: dict<precCategories> = {
+    "0": precCategories.min,
+    "a": precCategories.max,
+    "A": precCategories.low,
+    "+": precCategories.addition,
+    "-": precCategories.addition,
+    "*": precCategories.multiplication,
+    "/": precCategories.multiplication,
+    "**": precCategories.exponentiation,
+    "(": precCategories.max,
+    ")": precCategories.stop,
 }
 
-function getPrecedence(type: number, lexeme: string) : number{
-        switch (type) {
+function getPrecedence(type: number, lexeme: string): number {
+    switch (type) {
         case tokenTypes.Numeral:
             return precCategories.min;
         case tokenTypes.Constant:
@@ -175,7 +205,7 @@ function getPrecedence(type: number, lexeme: string) : number{
         case tokenTypes.Operator:
         case tokenTypes.Grouping:
             return precedences[lexeme]!;
-        default: 
+        default:
             return -1;
     }
 }
@@ -184,7 +214,7 @@ class parser {
     expr: string;
     tokens: Array<token> = [];
     currIndex = 0;
-    constructor(expression: string){
+    constructor(expression: string) {
         this.expr = expression.replace(/\s/g, "");
         this.tokenize();
     }
@@ -193,11 +223,11 @@ class parser {
         let j = -1;
         for (let i = 0; i < this.expr.length; i++) {
             let currType = getLexemeType(this.expr[i]!);
-            if (this.tokens.length == 0 
-                || this.tokens[j]!.type != currType 
+            if (this.tokens.length == 0
+                || this.tokens[j]!.type != currType
                 || this.tokens[j]!.type == tokenTypes.Grouping
                 || this.tokens[j]!.type == tokenTypes.Operator && !(this.tokens[j]!.lexeme == "*" && this.expr[i] == "*")
-               ){
+            ) {
                 // Make new token
                 this.tokens.push(makeToken(currType, this.expr[i]!));
                 j++;
@@ -222,19 +252,19 @@ class parser {
     }
 
     // returns the top node for the current terminal token and advances to the next token
-    parsePrefix() : node | null {
+    parsePrefix(): node | null {
         let curr = this.getCurrent();
         if (curr == null) return null;
         this.advance();
-        
-        if (curr.lexeme == "("){
+
+        if (curr.lexeme == "(") {
             let temp = this.buildSubTree(precCategories.min);
             if (this.getCurrent() != null && this.getCurrent()!.lexeme == ")") {
                 this.advance();
             }
             return temp;
         }
-        
+
         let ret = new node(curr);
 
         if (curr.type != tokenTypes.Numeral && curr.type != tokenTypes.Constant) {
@@ -245,18 +275,18 @@ class parser {
     }
 
     // returns the top node for the current operator, which should have a higher precedence when called in buildSubTree
-    parseInfix(operatorToken : token, leftNode : node | null) : node | null {
+    parseInfix(operatorToken: token, leftNode: node | null): node | null {
         if (operatorToken == null) return leftNode;
         if (leftNode == null) return null;
 
-        if (operatorToken.lexeme == "("){
+        if (operatorToken.lexeme == "(") {
             this.advance();
             let temp = this.buildSubTree(precCategories.min);
             temp!.leftNode = leftNode;
             return temp;
         }
 
-        if (operatorToken.lexeme == ")") { 
+        if (operatorToken.lexeme == ")") {
             return leftNode;
         }
 
@@ -266,16 +296,16 @@ class parser {
         return retNode;
     }
 
-    buildSubTree(precedenceLevel : number) : node | null {
+    buildSubTree(precedenceLevel: number): node | null {
         if (this.getCurrent() == null) return null;
         let leftNode = this.parsePrefix();
         let nextOperatorToken = this.getCurrent();
 
         while (nextOperatorToken != null && nextOperatorToken.precedence > precedenceLevel) {
             this.advance();
-            
+
             leftNode = this.parseInfix(nextOperatorToken, leftNode);
-            
+
             nextOperatorToken = this.getCurrent();
         }
 

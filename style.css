@@ -1,6 +1,15 @@
-body {
+@media (prefers-color-scheme: light) {
+  body {
+    color: black;
+    background-color: #ffffff;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
     color: white;
     background-color: black;
+  }
 }
 
 .calculator{
